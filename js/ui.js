@@ -388,9 +388,9 @@ const UI = {
         
         if (titleEl) titleEl.textContent = title;
         if (bodyEl) bodyEl.innerHTML = body;
-        if (actionsEl) actionsEl.innerHTML = actions;
+        if (actionsEl) actionsEl.innerHTML = actions + `<button class="btn" onclick="UI.closeModal()" style="margin-left:auto;">✕ Close</button>`;
         
-        if (modal) modal.classList.add('active');
+        if (modal) modal.style.display = 'flex';
     },
     
     /**
@@ -398,7 +398,7 @@ const UI = {
      */
     closeModal() {
         const modal = document.getElementById('modal');
-        if (modal) modal.classList.remove('active');
+        if (modal) modal.style.display = 'none';
     },
     
     /**
