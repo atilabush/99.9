@@ -86,7 +86,7 @@ const UI = {
             case 'tickets':
                 this.renderTickets();
                 break;
-            case 'personnel':
+            case 'staff':
                 this.renderStaff();
                 break;
             case 'clients':
