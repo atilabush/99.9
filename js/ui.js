@@ -38,6 +38,7 @@ const UI = {
      * Switch between views
      */
     switchView(viewName) {
+        console.log(`[DEBUG] switchView called: ${viewName}`);
         this.currentView = viewName;
         
         // Hide all views
@@ -47,7 +48,12 @@ const UI = {
         
         // Show selected view
         const viewEl = document.getElementById(`view-${viewName}`);
-        if (viewEl) viewEl.classList.add('active');
+        if (viewEl) {
+            viewEl.classList.add('active');
+            console.log(`[DEBUG] Activated view: view-${viewName}`);
+        } else {
+            console.error(`[DEBUG] View not found: view-${viewName}`);
+        }
         
         // Highlight desktop nav button
         const navBtn = document.querySelector(`.module-btn[data-view="${viewName}"]`);
@@ -186,10 +192,15 @@ const UI = {
      * Render messages list
      */
     renderMessages() {
+        console.log(`[DEBUG] renderMessages called, messages count: ${Game.messages.length}`);
         const container = document.getElementById('message-list');
-        if (!container) return;
+        if (!container) {
+            console.error('[DEBUG] message-list container not found');
+            return;
+        }
         
         if (Game.messages.length === 0) {
+            console.log('[DEBUG] No messages to render');
             container.innerHTML = '<p style="color: #505060; text-align: center; margin-top: 20px;">No messages</p>';
             return;
         }
