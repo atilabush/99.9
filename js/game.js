@@ -70,6 +70,7 @@ const Game = {
         
         // Add starting messages
         this.addStartingMessages();
+        console.log(`[DEBUG] Starting messages added: ${this.messages.length} messages`);
         
         // Schedule first events
         this.scheduleEvents();
@@ -148,6 +149,7 @@ const Game = {
         message.id = message.id || Date.now();
         message.timestamp = this.getTimestamp();
         this.messages.unshift(message);
+        console.log(`[DEBUG] Message added from ${message.from}, total: ${this.messages.length}`);
         
         // Notify UI
         if (window.UI) {

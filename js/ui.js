@@ -77,8 +77,10 @@ const UI = {
      * Refresh view content
      */
     refreshView(viewName) {
+        console.log(`[DEBUG] refreshView called for: ${viewName}`);
         switch(viewName) {
             case 'messages':
+                console.log(`[DEBUG] Rendering messages, Game.messages.length = ${Game.messages.length}`);
                 this.renderMessages();
                 break;
             case 'tickets':

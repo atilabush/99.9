@@ -196,8 +196,12 @@ const App = {
         // Update company display
         document.getElementById('company-display').textContent = Game.companyName;
         
+        console.log(`[DEBUG] Game.start() called, messages before start: ${Game.messages.length}`);
+        
         // Start game systems
         Game.start();
+        
+        console.log(`[DEBUG] UI.refresh() called, messages: ${Game.messages.length}`);
         
         // Full UI refresh
         UI.refresh();
