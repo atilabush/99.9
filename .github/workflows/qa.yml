@@ -1,0 +1,78 @@
+name: QA Test & Deploy
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  qa-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Check JavaScript Syntax
+      run: |
+        for file in js/*.js; do
+          echo "Checking $file..."
+          node --check "$file" || exit 1
+        done
+        echo "✅ All JS files pass syntax check"
+    
+    - name: Check HTML Structure
+      run: |
+        if grep -q "landing-screen" index.html && \
+           grep -q "auth-screen" index.html && \
+           grep -q "game-screen" index.html; then
+          echo "✅ HTML structure OK"
+        else
+          echo "❌ Missing required screen elements"
+          exit 1
+        fi
+    
+    - name: Check File Structure
+      run: |
+        required_files="index.html css/style.css js/game.js js/ui.js js/app.js"
+        for file in $required_files; do
+          if [ ! -f "$file" ]; then
+            echo "❌ Missing required file: $file"
+            exit 1
+          fi
+        done
+        echo "✅ All required files present"
+    
+    - name: Create Release Artifact
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        mkdir -p artifact
+        cp -r index.html css js artifact/
+        cd artifact
+        zip -r ../99.9-game.zip .
+    
+    - name: Upload Artifact
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: actions/upload-artifact@v3
+      with:
+        name: 99.9-game
+        path: 99.9-game.zip
+
+  deploy-notification:
+    needs: qa-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Deployment Notification
+      run: |
+        echo "🚀 QA tests passed!"
+        echo "Game ready for deployment to: https://game.atilathefun.com"
+        echo ""
+        echo "To deploy:"
+        echo "  scp -r index.html css js user@server:/mnt/data/games/datacenter-tycoon/"
