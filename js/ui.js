@@ -440,3 +440,141 @@ const UI = {
         this.refreshView(this.currentView);
     }
 };
+
+    /**
+     * v0.4 GAUGE FUNCTIONS
+     */
+    updateGauges() {
+        // Power gauge
+        const powerPct = (Game.powerUsed / Game.powerMax) * 100;
+        const powerBar = document.getElementById('power-bar');
+        const powerValue = document.getElementById('power-value');
+        const powerStatus = document.getElementById('power-status');
+        
+        if (powerBar) {
+            powerBar.style.width = `${Math.min(100, powerPct)}%`;
+            powerBar.className = 'gauge-bar-fill ' + (powerPct > 80 ? 'critical' : powerPct > 60 ? 'warning' : 'normal');
+        }
+        if (powerValue) powerValue.textContent = `${Game.powerUsed.toFixed(1)} / ${Game.powerMax} MW`;
+        if (powerStatus) {
+            powerStatus.textContent = powerPct > 80 ? 'CRITICAL' : powerPct > 60 ? 'WARNING' : 'NORMAL';
+            powerStatus.style.color = powerPct > 80 ? 'var(--error)' : powerPct > 60 ? 'var(--warning)' : 'var(--accent)';
+        }
+        
+        // Cooling gauge
+        const coolingPct = (Game.coolingUsed / Game.coolingMax) * 100;
+        const coolingBar = document.getElementById('cooling-bar');
+        const coolingValue = document.getElementById('cooling-value');
+        const coolingStatus = document.getElementById('cooling-status');
+        
+        if (coolingBar) {
+            coolingBar.style.width = `${Math.min(100, coolingPct)}%`;
+            coolingBar.className = 'gauge-bar-fill ' + (coolingPct > 80 ? 'critical' : coolingPct > 60 ? 'warning' : 'normal');
+        }
+        if (coolingValue) coolingValue.textContent = `${Math.round(coolingPct)}% capacity`;
+        if (coolingStatus) {
+            coolingStatus.textContent = coolingPct > 80 ? 'CRITICAL' : coolingPct > 60 ? 'WARNING' : 'OK';
+            coolingStatus.style.color = coolingPct > 80 ? 'var(--error)' : coolingPct > 60 ? 'var(--warning)' : 'var(--accent)';
+        }
+        
+        // Uptime gauge
+        const uptimeEl = document.getElementById('gauge-uptime');
+        if (uptimeEl) uptimeEl.textContent = `${Game.uptime.toFixed(2)}%`;
+    },
+
+    /**
+     * v0.4 RACK DIAGRAM
+     */
+    renderRackDiagram() {
+        const container = document.getElementById('rack-container');
+        if (!container) return;
+        
+        // Generate 6 racks with random server states
+        let html = '';
+        for (let rack = 1; rack <= 6; rack++) {
+            const servers = [];
+            for (let s = 0; s < 6; s++) {
+                // Determine server status based on game state
+                let status = 'normal';
+                const temp = 50 + Math.random() * 40; // 50-90°C
+                if (temp > 80) status = 'critical';
+                else if (temp > 70) status = 'warning';
+                
+                // Check if any tickets affect this rack
+                const hasTicket = Game.tickets.some(t => !t.resolved && t.affectedRack === rack);
+                if (hasTicket) status = 'critical';
+                
+                servers.push(`<div class="server ${status}"></div>`);
+            }
+            
+            html += `
+                <div class="rack" onclick="UI.showRackDetail(${rack})">
+                    <div class="rack-header">DC${rack}</div>
+                    <div class="rack-servers">${servers.join('')}</div>
+                </div>
+            `;
+        }
+        container.innerHTML = html;
+    },
+
+    showRackDetail(rackId) {
+        const rackServers = [];
+        for (let i = 1; i <= 6; i++) {
+            const temp = Math.round(50 + Math.random() * 40);
+            const status = temp > 80 ? 'critical' : temp > 70 ? 'warning' : 'normal';
+            rackServers.push(`Server ${i}: ${temp}°C ${status === 'critical' ? '🔴' : status === 'warning' ? '🟡' : '🟢'}`);
+        }
+        
+        this.showModal(
+            `RACK DC${rackId} DETAIL`,
+            `<div style="font-family: monospace; line-height: 1.8;">${rackServers.join('<br>')}</div>`,
+            '<button class="btn" onclick="UI.closeModal()">Close</button>'
+        );
+    },
+
+    /**
+     * v0.4 TIMELINE VIEW
+     */
+    renderTimeline() {
+        const container = document.getElementById('timeline-container');
+        if (!container) return;
+        
+        // Combine tickets and recent events
+        const items = [];
+        
+        // Add active tickets
+        Game.tickets.filter(t => !t.resolved).forEach(t => {
+            items.push({
+                type: 'ticket',
+                priority: t.priority,
+                title: t.title,
+                time: t.timeRemaining,
+                id: t.id
+            });
+        });
+        
+        // Sort by urgency
+        items.sort((a, b) => (a.time || 999) - (b.time || 999));
+        
+        let html = '';
+        items.forEach(item => {
+            const icon = item.priority === 'P1' ? '🔴' : item.priority === 'P2' ? '🟡' : '🟢';
+            const timeStr = item.time ? `${Math.floor(item.time / 60)}:${String(item.time % 60).padStart(2, '0')}` : '';
+            
+            html += `
+                <div class="timeline-item ${item.priority === 'P1' ? 'critical' : ''}" onclick="UI.viewTicket(${item.id})">
+                    <span class="timeline-time">${icon}</span>
+                    <div class="timeline-content">
+                        <div class="timeline-title">${item.title}</div>
+                        <div class="timeline-subtitle">${timeStr} remaining</div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        if (html === '') {
+            html = '<div style="color: var(--text-muted); text-align: center; padding: 40px;">No active alerts</div>';
+        }
+        
+        container.innerHTML = html;
+    },

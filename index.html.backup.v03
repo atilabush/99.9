@@ -730,51 +730,37 @@
     
     <!-- GAME SCREEN -->
     <div id="game-screen" style="display: none;">
-        <!-- GAUGE PANEL -->
-        <div class="gauge-panel">
-            <div class="card">
-                <div class="card-title">⚡ POWER</div>
-                <div class="gauge-container">
-                    <div class="gauge-label">
-                        <span id="power-value">12.4 / 20 MW</span>
-                        <span id="power-status" style="color: var(--accent);">NORMAL</span>
-                    </div>
-                    <div class="gauge-bar-bg">
-                        <div class="gauge-bar-fill normal" id="power-bar" style="width: 62%;"></div>
-                    </div>
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <div class="top-bar-item">
+                    <span class="label">COMPANY</span>
+                    <span class="value" id="company-display">--</span>
+                </div>
+                <div class="top-bar-item">
+                    <span class="label">FUNDS</span>
+                    <span class="value" id="funds-display">$100k</span>
+                </div>
+                <div class="top-bar-item">
+                    <span class="label">REPUTATION</span>
+                    <span class="value" id="rep-display">50</span>
+                </div>
+                <div class="top-bar-item">
+                    <span class="label">UPTIME</span>
+                    <span class="value" id="uptime-display">100%</span>
                 </div>
             </div>
-            
-            <div class="card">
-                <div class="card-title">❄️ COOLING</div>
-                <div class="gauge-container">
-                    <div class="gauge-label">
-                        <span id="cooling-value">68% capacity</span>
-                        <span id="cooling-status" style="color: var(--accent);">OK</span>
-                    </div>
-                    <div class="gauge-bar-bg">
-                        <div class="gauge-bar-fill normal" id="cooling-bar" style="width: 68%;"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-title">📊 UPTIME</div>
-                <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <div class="card-value" id="gauge-uptime">99.87%</div>
-                    <div style="font-size: 11px; color: var(--text-muted); text-align: right;">
-                        Target: 99.9%<br>
-                        <span style="color: var(--warning);">▲ 0.03%</span>
-                    </div>
-                </div>
+            <div class="top-bar-item">
+                <span class="status-dot"></span>
+                <span style="color: var(--accent);">SYSTEM ONLINE</span>
             </div>
         </div>
         
-        <!-- MAIN CONTENT -->
-        <div class="main-content">
-            <!-- Left Navigation -->
+        <div class="main-grid">
+            <!-- Left Panel (Desktop only) -->
             <div class="panel" id="nav-panel">
-                <div class="panel-header">// NAVIGATION</div>
+                <div class="panel-header">
+                    <span class="panel-header-title">// NAVIGATION</span>
+                </div>
                 <div class="panel-content">
                     <button class="module-btn active" onclick="switchView('dashboard')" data-view="dashboard">
                         <span>◈</span> DASHBOARD
@@ -799,61 +785,98 @@
                 </div>
             </div>
             
-            <!-- Center Content -->
+            <!-- Center Panel -->
             <div class="panel" id="main-panel">
-                <div class="panel-header" id="view-title">// DASHBOARD</div>
-                <div class="panel-content" id="main-content">
+                <div class="panel-header">
+                    <span class="panel-header-title" id="view-title">// DASHBOARD</span>
+                </div>
+                <div class="panel-content terminal-area" id="main-content">
                     <div class="view active" id="view-dashboard">
-                        <div class="timeline" id="timeline-container"></div>
+                        <div class="terminal-line">
+                            <span style="color: var(--accent);">$</span>
+                            <span>system_status</span>
+                        </div>
+                        <div style="margin: 20px 0; padding: 30px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); text-align: center;">
+                            <div style="font-size: 48px; font-weight: 800; color: var(--accent);" id="dash-uptime">100%</div>
+                            <div style="font-size: 12px; color: #505060; margin-top: 10px;">CURRENT UPTIME</div>
+                        </div>
+                        <div id="dashboard-alerts"></div>
                     </div>
                     
                     <div class="view" id="view-messages">
+                        <div class="terminal-line">
+                            <span style="color: var(--accent);">$</span>
+                            <span>mail --unread</span>
+                        </div>
                         <div id="message-list"></div>
                     </div>
                     
                     <div class="view" id="view-tickets">
+                        <div class="terminal-line">
+                            <span style="color: var(--accent);">$</span>
+                            <span>ticket --active</span>
+                        </div>
                         <div id="ticket-list"></div>
                     </div>
                     
                     <div class="view" id="view-staff">
+                        <div class="terminal-line">
+                            <span style="color: var(--accent);">$</span>
+                            <span>staff --list</span>
+                        </div>
                         <div id="staff-list"></div>
                     </div>
                     
                     <div class="view" id="view-clients">
+                        <div class="terminal-line">
+                            <span style="color: var(--accent);">$</span>
+                            <span>client --list</span>
+                        </div>
                         <div id="client-list"></div>
                     </div>
                     
                     <div class="view" id="view-logs">
+                        <div class="terminal-line">
+                            <span style="color: var(--accent);">$</span>
+                            <span>tail -f /var/log/syslog</span>
+                        </div>
                         <div id="full-log"></div>
                     </div>
                 </div>
             </div>
             
-            <!-- Right Activity -->
+            <!-- Right Panel (Activity log - becomes top on mobile) -->
             <div class="panel" id="activity-panel">
-                <div class="panel-header">// ACTIVITY</div>
+                <div class="panel-header">
+                    <span class="panel-header-title">// ACTIVITY</span>
+                </div>
                 <div class="panel-content" id="activity-log"></div>
             </div>
         </div>
         
-        <!-- Mobile Navigation -->
+        <!-- Mobile Navigation Bar -->
         <div class="mobile-nav" id="mobile-nav">
             <button class="mobile-nav-btn active" onclick="switchView('dashboard')" data-view="dashboard">
-                <span class="icon">◈</span><span>Dash</span>
+                <span class="icon">◈</span>
+                <span>Dash</span>
             </button>
             <button class="mobile-nav-btn" onclick="switchView('messages')" data-view="messages">
-                <span class="icon">✉</span><span>Mail</span>
+                <span class="icon">✉</span>
+                <span>Mail</span>
                 <span class="badge" id="mobile-msg-badge" style="display: none;">0</span>
             </button>
             <button class="mobile-nav-btn" onclick="switchView('tickets')" data-view="tickets">
-                <span class="icon">⚡</span><span>Tickets</span>
+                <span class="icon">⚡</span>
+                <span>Tickets</span>
                 <span class="badge" id="mobile-ticket-badge" style="display: none;">0</span>
             </button>
             <button class="mobile-nav-btn" onclick="switchView('staff')" data-view="staff">
-                <span class="icon">⚉</span><span>Staff</span>
+                <span class="icon">⚉</span>
+                <span>Staff</span>
             </button>
             <button class="mobile-nav-btn" onclick="switchView('clients')" data-view="clients">
-                <span class="icon">◉</span><span>Clients</span>
+                <span class="icon">◉</span>
+                <span>Clients</span>
             </button>
         </div>
     </div>
